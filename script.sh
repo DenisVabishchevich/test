@@ -17,7 +17,7 @@ token=$(curl -sS -X POST --location "$keycloak_url/auth/realms/$realm/protocol/o
   -d "client_id=$client_id&client_secret=$client_secret&username=$username&password=$password&grant_type=password" |
   jq -r '.access_token')
 
-[ -z "$token" ] && echo "Token is empty, exit" && exit 1 || echo "Token found"
+[ "$token" == null ] && echo "Token is empty, exit" && exit 1 || echo "Token found"
 
 files=$(git diff --name-only HEAD~1)
 for file in $files; do
