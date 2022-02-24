@@ -6,7 +6,6 @@ pipeline {
                 script {
                     final branch = env.GIT_BRANCH
                     println "Current branch is $branch"
-
                     if (branch == 'air') {
                         withEnv(['KEYCLOAK_USER_CLIENT_SECRET=2b5dcb7d-5807-455f-ad0d-b479c583f3c8',
                                  'KEYCLOAK_USER_CLIENT_ID=damba-test',
