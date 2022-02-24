@@ -35,6 +35,36 @@ for file in $files; do
       format="${file_tokens_format[1]}" # i.e. DOC
       lang="${file_lang_ext[0]}"        # i.e. en
 
+      # check if report by name exists
+      report_exists_status=$(curl -sS -X GET \
+        --location "$report_manager_url/api/report/$report_name" \
+        -o /dev/null \
+        -H "Authorization: Bearer $token" \
+        -w "%{http_code}")
+
+      # create report if not exists
+      if [ "$report_exists_status" == 400 ]; then
+        echo "Report not found: $report_name. Creating report and default reader"
+        create_report_status=$(curl -sS -X POST \
+          --location "$report_manager_url/api/report" \
+          -d "{ \"name\": \"$report_name\" }" \
+          -o /dev/null \
+          -H "Authorization: Bearer $token" \
+          -H "Content-Type: application/json" \
+          -w "%{http_code}")
+
+        [ "$create_report_status" != 200 ] && echo "Create report error, status: $create_report_status" && exit 1 || echo "Report created name: $report_name"
+
+        create_reader_status=$(curl -sS -X POST \
+          --location "$report_manager_url/api/reader" \
+          -d "{ \"report\": { \"name\": \"$report_name\" }  }" \
+          -o /dev/null \
+          -H "Authorization: Bearer $token" \
+          -H "Content-Type: application/json" \
+          -w "%{http_code}")
+        [ "$create_reader_status" != 200 ] && echo "Create reader error, status: $create_report_status" && exit 1 || echo "Reader created for report: $report_name"
+      fi
+
       echo "Uploading template for file: $file, reportName: $report_name, format: $format, lang: $lang"
       template_status=$(curl -sS -X POST --form file=@"$file" \
         --location "$report_manager_url/api/template/upload?reportName=$report_name&format=$format&lang=$lang" \
