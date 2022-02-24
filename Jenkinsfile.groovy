@@ -4,7 +4,6 @@ pipeline {
         stage('update templates') {
             steps {
                 script {
-
                     final branch = env.GIT_BRANCH
                     println "Current branch is $branch"
                     if (branch == 'air') {
